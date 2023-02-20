@@ -16,19 +16,32 @@ foreach($openapi->getPaths() as $path) {
         "  Endpoint: {$path->getEndpoint()}",
         "  Summary: {$path->getSummary()}",
         "  Description: {$path->getDescription()}",
-        "  Parameters: ",
     ];
 
+    $output[] = "  Parameters: ";
     foreach ($path->getParameters() as $parameter) {
-        $output[] = "  {$parameter->getName()}";
+        $output[] = "   {$parameter->getName()}";
+    }
+
+    $output[] = "  Operations: ";
+    foreach ($path->getOperations() as $operation) {
+        $output[] = "   Method: {$operation->getMethod()}";
+        $output[] = "   Summary: {$operation->getSummary()}";
+        $output[] = "   Description: {$operation->getDescription()}";
+        $output[] = "   Parameters:";
+
+        foreach ($operation->getParameters() as $parameter) {
+            $output[] = "    {$parameter->getName()}";
+            $output[] = "      Description: {$parameter->getDescription()}";
+            $output[] = "      In: {$parameter->getIn()}";
+
+            $schema = $parameter->getSchema();
+            $output[] = "      Schema:";
+            $output[] = "        Type: {$schema->getType()}";
+        }
     }
 
     print implode(PHP_EOL, $output) . PHP_EOL;
 
-    // $operations = $definition->getOperations();
-    // foreach ($operations as $method => $operation) {
-    //     foreach ($operation->parameters as $parameter) {
-    //         print $parameter->schema->type . PHP_EOL;
-    //     }
-    // }
+    die();
 }

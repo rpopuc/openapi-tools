@@ -2,21 +2,17 @@
 
 namespace App\OpenApi;
 
+use App\Api\Operations;
 use App\Api\Parameters;
 use Exception;
 use App\Api\Path as PathInterface;
 use App\Api\Specification;
 use cebe\openapi\spec\PathItem;
 use cebe\openapi\spec\Paths;
-use Illuminate\Support\Collection;
 
 class Path implements PathInterface
 {
-//    public Produces $produces;
-//    public Consumes $consumes;
-//    public Parameters $parameters;
-//    public Responses $responses;
-//    public Tags $tags;
+    private string $endpoint;
     private PathItem $definition;
 
     public function __construct(string $endpoint, PathItem $definition)
@@ -56,6 +52,17 @@ class Path implements PathInterface
 
         foreach ($this->definition->parameters as $definition) {
             $result->add(new Parameter($definition));
+        }
+
+        return $result;
+    }
+
+    public function getOperations(): Operations
+    {
+        $result = new Operations;
+
+        foreach ($this->definition->getOperations() as $method => $definition) {
+            $result->add(new Operation($method, $definition));
         }
 
         return $result;

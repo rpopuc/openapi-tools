@@ -79,12 +79,18 @@ class Items implements ArrayAccess, Iterator
 
     public function valid(): bool
     {
-        return $this->offset >= 0
+        return count($this->items)
+            && $this->offset >= 0
             && $this->offset < count($this->items);
     }
 
     public function rewind(): void
     {
         $this->offset = 0;
+    }
+
+    public function count(): int
+    {
+        return count($this->items);
     }
 }
