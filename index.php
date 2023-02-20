@@ -20,7 +20,7 @@ foreach($openapi->getPaths() as $path) {
     ];
 
     foreach ($path->getParameters() as $parameter) {
-        die($parameter->getName());
+        $output[] = "  {$parameter->getName()}";
     }
 
     print implode(PHP_EOL, $output) . PHP_EOL;
