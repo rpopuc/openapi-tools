@@ -1,4 +1,6 @@
 # Validations
 
 - Path parameters
-  - Must contains same parameters with same types in order
+  - Must exists 
+  - Must contains same parameters
+  - Parameters must be the same type

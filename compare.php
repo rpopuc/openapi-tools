@@ -11,6 +11,6 @@ $provider = $builder->fromYamlFile(realpath($argv[1]));
 $consumer = $builder->fromYamlFile(realpath($argv[2]));
 
 $compare = new \App\Services\Compare();
-$result = $compare->execute($provider, $consumer);
+$result = $compare->execu]te($provider, $consumer);
 
 dump($result);

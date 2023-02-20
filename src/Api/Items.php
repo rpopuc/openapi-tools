@@ -37,7 +37,7 @@ class Items implements ArrayAccess, Iterator
      * @param $offset
      * @return T
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->items[$offset];
     }
@@ -55,7 +55,7 @@ class Items implements ArrayAccess, Iterator
     /**
      * @return ?T
      */
-    public function current()
+    public function current(): mixed
     {
         return $this->valid()
             ?  $this->items[$this->offset]
@@ -65,11 +65,9 @@ class Items implements ArrayAccess, Iterator
     /**
      * @return ?T
      */
-    public function next()
+    public function next(): void
     {
         $this->offset++;
-
-        return $this->current();
     }
 
     public function key(): int

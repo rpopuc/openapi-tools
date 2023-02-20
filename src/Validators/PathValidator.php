@@ -7,14 +7,15 @@ use App\Api\Specification;
 
 class PathValidator
 {
-    public function validate(Specification $provider, Specification $consumer, Path $path): array
+    public function validate(Specification $provider, Specification $consumer, Path $path): Summary
     {
-        $summary = [];
+        $summary = new Summary;
+
         if (!$providerPath = $this->findPathByEndpoint($path->getEndpoint(), $provider)) {
-            $summary[] = "Endpoint does not exists: {$path->getEndpoint()}";
+            return $summary->addError("Endpoint does not exists: {$path->getEndpoint()}");
         }
 
-        return $summary;
+        return $summary->merge($this->validateQueryParametersTypes($path, $providerPath));
     }
 
     private function findPathByEndpoint(string $endpoint, Specification $provider): ?Path
@@ -29,5 +30,23 @@ class PathValidator
         }
 
         return null;
+    }
+
+    private function validateQueryParametersTypes(Path $path, Path $providerPath): Summary
+    {
+        $summary = new Summary();
+        $parameters = $path->getParameters();
+        $providerParameters = $providerPath->getParameters();
+        foreach ($parameters as $order => $parameter) {
+            $providerParameter = $providerParameters[$order];
+            $providerType = $providerParameter->getSchema()->getType();
+            $consumerType = $parameter->getSchema()->getType();
+
+            if ($consumerType !== $providerType) {
+                $summary->addError("Parameter {$parameter->getName()} expected to be from type '{$providerType}', not '{$consumerType}'");
+            }
+        }
+
+        return $summary;
     }
 }

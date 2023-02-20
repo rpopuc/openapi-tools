@@ -9,6 +9,7 @@ interface Path extends SpecificationItem
     public function getSummary(): ?string;
     public function getDescription(): ?string;
     public function getOperationId(): string;
+    public function getParameters(): Parameters;
     // public function getProduces(): Produces;
     // public function getConsumes(): Consumes;
     // public function getParameters(): Parameters;
