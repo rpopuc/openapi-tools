@@ -1,5 +1,6 @@
 <?php
 
+use App\Api\Operations;
 use App\Api\Parameters;
 use App\Api\Path;
 use App\Api\Paths;
@@ -12,7 +13,7 @@ test('Validates path', function () {
             $paths = new Paths;
             $paths->add(mock(Path::class)->expect(
                 getEndpoint: fn() => '/api/v1',
-                getParameters: fn() => new Parameters(),
+                getParameters: fn() => new Parameters()
             ));
             return $paths;
         },
@@ -24,6 +25,7 @@ test('Validates path', function () {
             $paths->add(mock(Path::class)->expect(
                 getEndpoint: fn() => '/api/v1',
                 getParameters: fn() => new Parameters(),
+                getOperations: fn() => new Operations(),
             ));
             return $paths;
         },
@@ -81,6 +83,7 @@ test('Validates one parameter with different names', function () {
             $paths->add(mock(Path::class)->expect(
                 getEndpoint: fn() => '/api/{id}/v1',
                 getParameters: fn() => new Parameters(),
+                getOperations: fn() => new Operations(),
             ));
             return $paths;
         },
@@ -110,6 +113,7 @@ test('Validates multiple parameters with different names', function () {
             $paths->add(mock(Path::class)->expect(
                 getEndpoint: fn() => '/api/{id}/v1/{param}',
                 getParameters: fn() => new Parameters(),
+                getOperations: fn() => new Operations(),
             ));
             return $paths;
         },
@@ -146,8 +150,37 @@ test("Validates parameter's types", function () {
         },
     );
 
+    $consumer = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths;
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/{first}/v1/{second}/',
+                getParameters: function() {
+                    $parameters = new Parameters;
+                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                            getType: fn() => 'string'
+                        )
+                    ));
+                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                            getType: fn() => 'number'
+                        )
+                    ));
+                    return $parameters;
+                },
+                getOperations: fn() => new Operations(),
+            ));
+            return $paths;
+        },
+    );
+
     $validator = new PathValidator();
-    $result = $validator->validate($provider, $provider, $provider->getPaths()[0]);
+    $result = $validator->validate(
+        provider: $provider,
+        consumer: $consumer,
+        path: $consumer->getPaths()[0]
+    );
 
     expect($result->isValid())->toBeTrue();
 });
@@ -182,6 +215,7 @@ test("Verifies invalid parameter's types", function () {
             $paths = new Paths;
             $paths->add(mock(Path::class)->expect(
                 getEndpoint: fn() => '/api/{first}/v1/{second}/',
+                getOperations: fn() => new Operations(),
                 getParameters: function() {
                     $parameters = new Parameters;
                     $parameters->add(mock(\App\Api\Parameter::class)->expect(
@@ -211,5 +245,98 @@ test("Verifies invalid parameter's types", function () {
         ->and($result->getErrors())->toBe([
             "Parameter id expected to be from type 'string', not 'number'",
             "Parameter action expected to be from type 'number', not 'string'"
+        ]);
+});
+
+test('Validates operations', function () {
+    $provider = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths;
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/v1',
+                getOperation: function($method) {
+                    try {
+                        $specification = new \cebe\openapi\spec\Operation([]);
+                    } catch (\cebe\openapi\exceptions\TypeErrorException $e) {
+                    }
+                    return new \App\OpenApi\Operation($method, $specification);
+                },
+                getParameters: fn() => new Parameters(),
+            ));
+            return $paths;
+        },
+    );
+
+    $consumer = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths();
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/v1',
+                getOperations: function() {
+                    $operations = new Operations();
+                    $operations->add(mock(\App\Api\Operation::class)->expect(
+                        getMethod: fn() => 'post',
+                    ));
+                    $operations->add(mock(\App\Api\Operation::class)->expect(
+                        getMethod: fn() => 'get',
+                    ));
+                    return $operations;
+                },
+                getParameters: fn() => new Parameters(),
+            ));
+            return $paths;
+        },
+    );
+
+    $validator = new PathValidator();
+    $result = $validator->validate($provider, $consumer, $consumer->getPaths()[0]);
+
+    expect($result->isValid())->toBeTrue();
+});
+
+test('Verifies invalid operation', function () {
+    $provider = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths;
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/v1',
+                getOperation: function($method) {
+                    return null;
+                },
+                getParameters: fn() => new Parameters(),
+            ));
+            return $paths;
+        },
+    );
+
+    $consumer = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths();
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/v1',
+                getOperations: function() {
+                    $operations = new Operations();
+                    $operations->add(mock(\App\Api\Operation::class)->expect(
+                        getMethod: fn() => 'post',
+                    ));
+                    $operations->add(mock(\App\Api\Operation::class)->expect(
+                        getMethod: fn() => 'get',
+                    ));
+                    return $operations;
+                },
+                getParameters: fn() => new Parameters(),
+            ));
+            return $paths;
+        },
+    );
+
+    $validator = new PathValidator();
+    $result = $validator->validate($provider, $consumer, $consumer->getPaths()[0]);
+
+    expect($result->isValid())->toBeFalse()
+        ->and($result->getErrors())->toHaveCount(2)
+        ->and($result->getErrors())->toBe([
+            "There are no operation 'post' for endpoint '/api/v1'",
+            "There are no operation 'get' for endpoint '/api/v1'",
         ]);
 });

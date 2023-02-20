@@ -15,7 +15,8 @@ class PathValidator
             return $summary->addError("Endpoint does not exists: {$path->getEndpoint()}");
         }
 
-        return $summary->merge($this->validateQueryParametersTypes($path, $providerPath));
+        return $summary->merge($this->validateQueryParametersTypes($path, $providerPath))
+            ->merge($this->validateOperations($path, $providerPath));
     }
 
     private function findPathByEndpoint(string $endpoint, Specification $provider): ?Path
@@ -44,6 +45,18 @@ class PathValidator
 
             if ($consumerType !== $providerType) {
                 $summary->addError("Parameter {$parameter->getName()} expected to be from type '{$providerType}', not '{$consumerType}'");
+            }
+        }
+
+        return $summary;
+    }
+
+    private function validateOperations(Path $path, Path $providerPath): Summary
+    {
+        $summary = new Summary();
+        foreach ($path->getOperations() as $operation) {
+            if (!$providerPath->getOperation($operation->getMethod())) {
+                $summary->addError("There are no operation '{$operation->getMethod()}' for endpoint '{$path->getEndpoint()}'");
             }
         }
 

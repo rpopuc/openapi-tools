@@ -10,6 +10,10 @@ interface Path extends SpecificationItem
     public function getDescription(): ?string;
     public function getOperationId(): string;
     public function getParameters(): Parameters;
+    public function getOperations(): Operations;
+    public function getOperation(string $method): ?Operation;
+
+
     // public function getProduces(): Produces;
     // public function getConsumes(): Consumes;
     // public function getParameters(): Parameters;

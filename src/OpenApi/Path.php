@@ -68,6 +68,18 @@ class Path implements PathInterface
         return $result;
     }
 
+    public function getOperation(string $method): ?Operation
+    {
+        $operations = $this->getOperations();
+        foreach ($operations as $operation) {
+            if ($operation->getMethod() === $method) {
+                return $operation;
+            }
+        }
+
+        return null;
+    }
+
     public function setParameters(Parameters $parameters): void
     {
         $this->parameters = $parameters;
