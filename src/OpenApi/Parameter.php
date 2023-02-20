@@ -24,7 +24,7 @@ class Parameter implements ParameterInterface
         return $this->specification->in;
     }
 
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->specification->description;
     }

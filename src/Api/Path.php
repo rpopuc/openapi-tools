@@ -14,4 +14,5 @@ interface Path extends SpecificationItem
     // public function getParameters(): Parameters;
     // public function getResponses(): Responses;
     // public function getTags(): Tags;
+
 }

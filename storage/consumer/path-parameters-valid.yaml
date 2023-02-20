@@ -1,0 +1,44 @@
+openapi: 3.0.1
+info:
+  title: Swagger Petstore
+  description: |
+    Example of consume path with parameters
+  version: 1.0.5
+servers:
+  - url: https://example.com
+paths:
+  /one-parameter/{id}/action:
+    post:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                data:
+                  type: string
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
