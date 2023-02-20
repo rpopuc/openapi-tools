@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .docker/build/app
+    volumes:
+      - ./:/var/www/
+    working_dir: /var/www/
+    tty: true
