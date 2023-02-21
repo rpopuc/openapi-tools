@@ -49,14 +49,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              properties:
-                additionalMetadata:
-                  type: string
-                  description: Additional data to pass to server
-                file:
-                  type: string
-                  description: file to upload
-                  format: binary
+              $ref: '#/components/schemas/FileUpload'
       responses:
         200:
           description: successful operation
@@ -578,6 +571,18 @@ components:
           type: string
         message:
           type: string
+
+    FileUpload:
+      type: object
+      properties:
+        additionalMetadata:
+          type: string
+          description: Additional data to pass to server
+        file:
+          type: string
+          description: file to upload
+          format: binary
+
     Category:
       type: object
       properties:

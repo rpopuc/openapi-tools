@@ -158,11 +158,13 @@ test("Validates parameter's types", function () {
                 getParameters: function() {
                     $parameters = new Parameters;
                     $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                        getName: fn() => 'first',
                         getSchema: fn() => mock(\App\Api\Schema::class)->expect(
                             getType: fn() => 'string'
                         )
                     ));
                     $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                        getName: fn() => 'second',
                         getSchema: fn() => mock(\App\Api\Schema::class)->expect(
                             getType: fn() => 'number'
                         )
@@ -243,8 +245,8 @@ test("Verifies invalid parameter's types", function () {
     expect($result->isValid())->toBeFalse()
         ->and($result->getErrors())->toHaveCount(2)
         ->and($result->getErrors())->toBe([
-            "Parameter id expected to be from type 'string', not 'number'",
-            "Parameter action expected to be from type 'number', not 'string'"
+            "Parameter id: expected type 'string', not 'number'",
+            "Parameter action: expected type 'number', not 'string'"
         ]);
 });
 

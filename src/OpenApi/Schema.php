@@ -3,18 +3,21 @@
 namespace App\OpenApi;
 
 use App\Api\Schema as SchemaInterface;
+use App\Api\Schemas;
 use cebe\openapi\spec\Schema as SchemaSpecification;
 
 class Schema implements SchemaInterface
 {
     private SchemaSpecification $definition;
+    private string $name;
 
-    public function __construct(SchemaSpecification $definition)
+    public function __construct(SchemaSpecification $definition, string $name = '')
     {
         $this->definition = $definition;
+        $this->name = $name;
     }
 
-    public function getTitle(): string
+    public function getTitle(): ?string
     {
         return $this->definition->title;
     }
@@ -124,9 +127,15 @@ class Schema implements SchemaInterface
         return new Schema($this->definition->items);
     }
 
-    public function getProperties(): array
+    public function getProperties(): Schemas
     {
-        return $this->definition->properties;
+        $result = new Schemas;
+
+        foreach ($this->definition->properties as $name => $property) {
+            $result->add(new Schema($property, $name));
+        }
+
+        return $result;
     }
 
     public function getDescription(): string
@@ -134,7 +143,7 @@ class Schema implements SchemaInterface
         return $this->definition->description;
     }
 
-    public function getFormat(): string
+    public function getFormat(): ?string
     {
         return $this->definition->format;
     }
@@ -167,5 +176,10 @@ class Schema implements SchemaInterface
     public function isDeprecated(): bool
     {
         return $this->definition->deprecated;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 }

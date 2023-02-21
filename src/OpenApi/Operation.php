@@ -4,6 +4,7 @@ namespace App\OpenApi;
 
 use App\Api\Operation as OperationInterface;
 use App\Api\Parameters;
+use App\Api\RequestBody as RequestBodyInterface;
 use cebe\openapi\spec\Operation as OperationDefinition;
 
 class Operation implements OperationInterface
@@ -41,5 +42,10 @@ class Operation implements OperationInterface
         }
 
         return $result;
+    }
+
+    public function getRequestBody(): ?RequestBodyInterface
+    {
+        return new RequestBody($this->definition->requestBody);
     }
 }

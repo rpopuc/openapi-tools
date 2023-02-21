@@ -23,10 +23,10 @@ class Summary
         return array_values($this->errors);
     }
 
-    public function merge(Summary $summary): Summary
+    public function merge(Summary $summary, string $prefix = ''): Summary
     {
         foreach ($summary->getErrors() as $error) {
-            $this->addError($error);
+            $this->addError($prefix . $error);
         }
 
         return $this;

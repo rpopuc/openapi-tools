@@ -40,12 +40,11 @@ class PathValidator
         $providerParameters = $providerPath->getParameters();
         foreach ($parameters as $order => $parameter) {
             $providerParameter = $providerParameters[$order];
-            $providerType = $providerParameter->getSchema()->getType();
-            $consumerType = $parameter->getSchema()->getType();
-
-            if ($consumerType !== $providerType) {
-                $summary->addError("Parameter {$parameter->getName()} expected to be from type '{$providerType}', not '{$consumerType}'");
-            }
+            $schemaValidator = new SchemaValidator;
+            $summary->merge($schemaValidator->validate(
+                providerSchema: $providerParameter->getSchema(),
+                consumerSchema: $parameter->getSchema(),
+            ), "Parameter {$parameter->getName()}: ");
         }
 
         return $summary;

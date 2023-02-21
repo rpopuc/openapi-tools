@@ -4,7 +4,8 @@ namespace App\Api;
 
 interface Schema
 {
-    public function getTitle(): string;
+    public function getName(): string;
+    public function getTitle(): ?string;
     public function getType(): string;
     public function getMultipleOf(): float;
     public function getMaximum(): float;
@@ -27,9 +28,9 @@ interface Schema
     public function getAnyOf(): array;
     public function getNot(): Schema;
     public function getItems(): Schema;
-    public function getProperties(): array;
+    public function getProperties(): Schemas;
     public function getDescription(): string;
-    public function getFormat(): string;
+    public function getFormat(): ?string;
     public function getDefault(): string;
     public function isNullable(): bool;
     // 'discriminator' => Discriminator::class,
