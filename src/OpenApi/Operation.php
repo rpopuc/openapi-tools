@@ -46,6 +46,10 @@ class Operation implements OperationInterface
 
     public function getRequestBody(): ?RequestBodyInterface
     {
+        if (!$this->definition->requestBody) {
+            return null;
+        }
+
         return new RequestBody($this->definition->requestBody);
     }
 }

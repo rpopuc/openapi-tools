@@ -11,4 +11,15 @@ class Schemas extends Items
     {
         return $this->addItem($item);
     }
+
+    public function getByName(string $name): ?Schema
+    {
+        foreach ($this as $schema) {
+            if ($schema->getName() === $name) {
+                return $schema;
+            }
+        }
+
+        return null;
+    }
 }

@@ -17,6 +17,23 @@ class SchemaValidator
             $summary->addError("expected type '{$providerType}', not '{$consumerType}'");
         }
 
+        if ($consumerType === 'array') {
+            $providerItemsType = $providerSchema->getItems();
+            $consumerItemsType = $consumerSchema->getItems();
+            return $summary->merge($this->validate($providerItemsType, $consumerItemsType));
+        }
+
+        if ($consumerType === 'object') {
+            foreach ($consumerSchema->getProperties() as $property) {
+                if (!$providerProperty = $providerSchema->getProperties()->getByName($property->getName())) {
+                    $summary->addError('Property do not exists on provider: ' . $property->getName());
+                    continue;
+                }
+
+                $summary->merge($this->validate($providerProperty, $property));
+            }
+        }
+
         return $summary;
     }
 }

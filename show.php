@@ -51,23 +51,25 @@ foreach($openapi->getPaths() as $path) {
             $output->down();
         }
 
-        $contents = $operation->getRequestBody()->getContent();
-        $output->add('Request body:')->up();
-        foreach ($operation->getRequestBody()->getContent() as $mediaType) {
-            $output->add($mediaType->getType());
-            $output->up();
+        if ($operation->getRequestBody()) {
+            $contents = $operation->getRequestBody()->getContent();
+            $output->add('Request body:')->up();
+            foreach ($operation->getRequestBody()->getContent() as $mediaType) {
+                $output->add($mediaType->getType());
+                $output->up();
                 $output->add('Schema:');
                 $output->up();
-                    foreach ($mediaType->getSchema()->getProperties() as $property) {
-                        $output->add($property->getName());
-                        $output->up();
-                            $output->add("Type: "  . $property->getType());
-                            $output->add("Description: "  . $property->getDescription());
-                            $output->add("Format: "  . $property->getFormat());
-                        $output->down();
-                    }
+                foreach ($mediaType->getSchema()->getProperties() as $property) {
+                    $output->add($property->getName());
+                    $output->up();
+                    $output->add("Type: " . $property->getType());
+                    $output->add("Description: " . $property->getDescription());
+                    $output->add("Format: " . $property->getFormat());
+                    $output->down();
+                }
                 $output->down();
-            $output->down();
+                $output->down();
+            }
         }
     }
 
