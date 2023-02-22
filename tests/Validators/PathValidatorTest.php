@@ -1,11 +1,14 @@
 <?php
 
 use App\Api\Operations;
+use App\Api\Parameter;
 use App\Api\Parameters;
 use App\Api\Path;
 use App\Api\Paths;
+use App\Api\Schema;
 use App\Api\Specification;
 use App\Validators\PathValidator;
+use Tests\Validators\Stubs\Schema as SchemaStub;
 
 test('Validates path', function () {
     $provider = mock(Specification::class)->expect(
@@ -133,13 +136,13 @@ test("Validates parameter's types", function () {
                 getEndpoint: fn() => '/api/{first}/v1/{second}/',
                 getParameters: function() {
                     $parameters = new Parameters;
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'string'
                         )
                     ));
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'number'
                         )
                     ));
@@ -157,15 +160,15 @@ test("Validates parameter's types", function () {
                 getEndpoint: fn() => '/api/{first}/v1/{second}/',
                 getParameters: function() {
                     $parameters = new Parameters;
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
                         getName: fn() => 'first',
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'string'
                         )
                     ));
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
                         getName: fn() => 'second',
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'number'
                         )
                     ));
@@ -195,13 +198,13 @@ test("Verifies invalid parameter's types", function () {
                 getEndpoint: fn() => '/api/{first}/v1/{second}/',
                 getParameters: function() {
                     $parameters = new Parameters;
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'string'
                         )
                     ));
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'number'
                         )
                     ));
@@ -220,15 +223,15 @@ test("Verifies invalid parameter's types", function () {
                 getOperations: fn() => new Operations(),
                 getParameters: function() {
                     $parameters = new Parameters;
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
                         getName: fn() => 'id',
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'number'
                         )
                     ));
-                    $parameters->add(mock(\App\Api\Parameter::class)->expect(
+                    $parameters->add(mock(Parameter::class)->expect(
                         getName: fn() => 'action',
-                        getSchema: fn() => mock(\App\Api\Schema::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
                             getType: fn() => 'string'
                         )
                     ));
@@ -341,4 +344,52 @@ test('Verifies invalid operation', function () {
             "There are no operation 'post' for endpoint '/api/v1'",
             "There are no operation 'get' for endpoint '/api/v1'",
         ]);
+});
+
+test('Verifies required parameters', function () {
+    $provider = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths;
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/v1',
+                getParameters: function() {
+                    $parameters = new Parameters;
+                    $parameters->add(mock(Parameter::class)->expect(
+                        getSchema: fn() => mock(Schema::class)->expect(
+                            getType: fn() => 'string'
+                        ),
+                        isRequired: fn() => true,
+                    ));
+                    return $parameters;
+                },
+            ));
+            return $paths;
+        },
+    );
+
+    $consumer = mock(Specification::class)->expect(
+        getPaths: function() {
+            $paths = new Paths;
+            $paths->add(mock(Path::class)->expect(
+                getEndpoint: fn() => '/api/v1',
+                getOperations: fn() => new Operations(),
+                getParameters: function() {
+                    $parameters = new Parameters;
+                    $parameters->add(mock(Parameter::class)->expect(
+                        getName: fn() => 'filter',
+                        getSchema: fn() => new SchemaStub([
+                            'type' => 'string'
+                        ]),
+                    ));
+                    return $parameters;
+                },
+            ));
+            return $paths;
+        },
+    );
+
+    $validator = new PathValidator();
+    $result = $validator->validate($provider, $consumer, $consumer->getPaths()[0]);
+
+    expect($result->isValid())->toBeTrue();
 });

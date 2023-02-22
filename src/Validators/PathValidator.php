@@ -16,6 +16,7 @@ class PathValidator
         }
 
         return $summary->merge($this->validateQueryParametersTypes($path, $providerPath))
+            //->merge($this->validateRequiredParameters($path, $providerPath))
             ->merge($this->validateOperations($path, $providerPath));
     }
 
